@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Put,
+  Req,
   UseGuards,
   UsePipes,
   ValidationPipe,
@@ -22,9 +23,12 @@ export class CategoryController {
   @Put(CategoryRoutes.Set)
   async setCategoriesManually(
     @Body() model: CategoryCreationRequestDTO,
+    @Req() request,
   ): Promise<boolean> {
-    const result: boolean =
-      await this.categoryService.setCategoriesManually(model);
+    const result: boolean = await this.categoryService.setCategoriesManually(
+      model,
+      request.user,
+    );
     return result;
   }
 

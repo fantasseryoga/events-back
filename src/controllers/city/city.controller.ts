@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Put,
+  Req,
   UseGuards,
   UsePipes,
   ValidationPipe,
@@ -22,8 +23,12 @@ export class CityController {
   @Put(CityRoutes.Set)
   async setCitiesManually(
     @Body() model: CityCreationRequestDTO,
+    @Req() request,
   ): Promise<boolean> {
-    const result: boolean = await this.cityService.setCitiesManually(model);
+    const result: boolean = await this.cityService.setCitiesManually(
+      model,
+      request.user,
+    );
     return result;
   }
 

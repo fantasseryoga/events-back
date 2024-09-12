@@ -6,6 +6,7 @@ import {
   IsString,
   IsUUID,
   MaxLength,
+  Min,
   MinLength,
   ValidateNested,
 } from "class-validator";
@@ -47,4 +48,7 @@ export class EventDTO {
   @IsDateString()
   @IsNotEmpty()
   eventDate: Date;
+
+  @Min(0)
+  userCount?: number;
 }

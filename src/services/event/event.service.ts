@@ -15,6 +15,10 @@ import { EventPaginatedRequestDTO } from "src/dto/event/event-pagination-request
 import { EventDTO } from "src/dto/event/event.dto";
 import { SortDirection } from "src/enums/common/sort-direction.enum";
 import { EventSortBy } from "src/enums/event/event-sort-by.enum";
+import { RoleService } from "../role/role.service";
+import { UserRolesEnum } from "src/enums/roles/roles.enum";
+import { UserDoesNotHavePersmissionException } from "src/common/exceptions/auth/user-does-not-has-permission.exception";
+import { TokenModelDTO } from "src/dto/token/token-model.dto";
 
 @Injectable()
 export class EventService {
@@ -23,9 +27,21 @@ export class EventService {
     private readonly eventRepository: Repository<EventEntity>,
     private readonly cityService: CityService,
     private readonly categoryService: CategoryService,
+    private readonly roleService: RoleService,
   ) {}
 
-  async createEvent(model: EventCreationRequestDTO): Promise<boolean> {
+  async createEvent(
+    model: EventCreationRequestDTO,
+    currentUser: TokenModelDTO,
+  ): Promise<boolean> {
+    const isUserAdmin = await this.roleService.isUserHasRole(
+      UserRolesEnum.Admin,
+      currentUser.userId,
+    );
+
+    if (!isUserAdmin) {
+      throw new UserDoesNotHavePersmissionException();
+    }
     const cityExists = await this.cityService.getCityById(model.cityId);
     if (!cityExists) {
       throw new CityNorFoundException();
@@ -57,7 +73,16 @@ export class EventService {
   async updateEvent(
     model: EventUpdateRequestDTO,
     eventId: string,
+    currentUser: TokenModelDTO,
   ): Promise<boolean> {
+    const isUserAdmin = await this.roleService.isUserHasRole(
+      UserRolesEnum.Admin,
+      currentUser.userId,
+    );
+
+    if (!isUserAdmin) {
+      throw new UserDoesNotHavePersmissionException();
+    }
     const existingEvent = await this.eventRepository.findOne({
       where: { id: eventId },
       relations: ["categories"],
@@ -104,7 +129,18 @@ export class EventService {
     return true;
   }
 
-  async deleteEvent(eventId: string): Promise<boolean> {
+  async deleteEvent(
+    eventId: string,
+    currentUser: TokenModelDTO,
+  ): Promise<boolean> {
+    const isUserAdmin = await this.roleService.isUserHasRole(
+      UserRolesEnum.Admin,
+      currentUser.userId,
+    );
+
+    if (!isUserAdmin) {
+      throw new UserDoesNotHavePersmissionException();
+    }
     const existingEvent = await this.eventRepository.findOne({
       where: { id: eventId },
     });
@@ -226,7 +262,16 @@ export class EventService {
       throw new EventNotFoundException();
     }
 
-    return existingEvent;
+    const userCount = await this.eventRepository
+      .createQueryBuilder("event")
+      .leftJoin("event.users", "user")
+      .where("event.id = :eventId", { eventId })
+      .getCount();
+
+    const eventResponse: EventDTO = existingEvent;
+    eventResponse.userCount = userCount;
+
+    return eventResponse;
   }
 
   async isEventUique(title: string): Promise<boolean> {

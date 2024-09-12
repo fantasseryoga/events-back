@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Req,
   UseGuards,
   UsePipes,
   ValidationPipe,
@@ -25,8 +26,14 @@ export class EventController {
 
   @UseGuards(AuthGuard)
   @Post(EventRoutes.Create)
-  async createEvent(@Body() model: EventCreationRequestDTO): Promise<boolean> {
-    const result: boolean = await this.eventService.createEvent(model);
+  async createEvent(
+    @Body() model: EventCreationRequestDTO,
+    @Req() request,
+  ): Promise<boolean> {
+    const result: boolean = await this.eventService.createEvent(
+      model,
+      request.user,
+    );
     return result;
   }
 
@@ -44,15 +51,26 @@ export class EventController {
   async updateEvent(
     @Body() model: EventUpdateRequestDTO,
     @Param("eventId") eventId: string,
+    @Req() request,
   ): Promise<boolean> {
-    const result: boolean = await this.eventService.updateEvent(model, eventId);
+    const result: boolean = await this.eventService.updateEvent(
+      model,
+      eventId,
+      request.user,
+    );
     return result;
   }
 
   @UseGuards(AuthGuard)
   @Delete(EventRoutes.Delete)
-  async deleteEvent(@Param("eventId") eventId: string): Promise<boolean> {
-    const result: boolean = await this.eventService.deleteEvent(eventId);
+  async deleteEvent(
+    @Param("eventId") eventId: string,
+    @Req() request,
+  ): Promise<boolean> {
+    const result: boolean = await this.eventService.deleteEvent(
+      eventId,
+      request.user,
+    );
     return result;
   }
 
