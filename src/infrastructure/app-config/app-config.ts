@@ -37,6 +37,22 @@ export class AppConfig {
   get DB_USER_PASSWORD(): string {
     return this.configService.get<string>("DB_USER_PASSWORD");
   }
+
+  get API_JWT_ACCESS_TOKEN_SECRET(): string {
+    return this.configService.get<string>("API_JWT_ACCESS_TOKEN_SECRET");
+  }
+
+  get API_JWT_ACCESS_TOKEN_EXPIRATION(): string {
+    return this.configService.get<string>("API_JWT_ACCESS_TOKEN_EXPIRATION");
+  }
+
+  get API_JWT_REFRESH_TOKEN_SECRET(): string {
+    return this.configService.get<string>("API_JWT_REFRESH_TOKEN_SECRET");
+  }
+
+  get API_JWT_REFRESH_TOKEN_EXPIRATION(): string {
+    return this.configService.get<string>("API_JWT_REFRESH_TOKEN_EXPIRATION");
+  }
 }
 
 config();

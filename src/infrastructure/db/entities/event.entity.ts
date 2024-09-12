@@ -11,6 +11,7 @@ import {
 } from "typeorm";
 import { CategoryEntity } from "./category.entity";
 import { CityEntity } from "./city.entity";
+import { UserEntity } from "./user.entity";
 
 @Entity("event")
 export class EventEntity {
@@ -59,6 +60,14 @@ export class EventEntity {
     onUpdate: "CURRENT_TIMESTAMP",
   })
   updatedAt: Date;
+
+  @ManyToMany(() => UserEntity)
+  @JoinTable()
+  users: UserEntity[];
+
+  @ManyToOne(() => UserEntity)
+  @JoinColumn({ name: "creator_id" })
+  creator: UserEntity;
 
   @ManyToMany(() => CategoryEntity, { eager: true })
   @JoinTable()

@@ -3,9 +3,11 @@ import {
   Controller,
   Get,
   Put,
+  UseGuards,
   UsePipes,
   ValidationPipe,
 } from "@nestjs/common";
+import { AuthGuard } from "src/common/guard/auth.guard";
 import { CategoryCreationRequestDTO } from "src/dto/category/category-creation-request.dto";
 import { CategoryDTO } from "src/dto/category/category.dto";
 import { CategoryRoutes } from "src/enums/routes/category-routes.enum";
@@ -16,6 +18,7 @@ import { CategoryService } from "src/services/category/category.service";
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
+  @UseGuards(AuthGuard)
   @Put(CategoryRoutes.Set)
   async setCategoriesManually(
     @Body() model: CategoryCreationRequestDTO,
@@ -25,6 +28,7 @@ export class CategoryController {
     return result;
   }
 
+  @UseGuards(AuthGuard)
   @Get(CategoryRoutes.List)
   async getCategoryList(): Promise<CategoryDTO[]> {
     const result: CategoryDTO[] = await this.categoryService.getCategoryList();
